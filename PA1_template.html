@@ -70,7 +70,7 @@ img {
 <pre class="r"><code>## check if file exists, if not either unzip the archive or download and unzip
 ## if the zip archive is missing
 if (!file.exists(&quot;activity.csv&quot;)){
-    if (!file.exists(&quot;activity.csv&quot;)){
+    if (!file.exists(&quot;activity.zip&quot;)){
             download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;,
                           &quot;activity.zip&quot;)
     }

@@ -12,7 +12,7 @@ reformated to be a Date object.
 ## check if file exists, if not either unzip the archive or download and unzip
 ## if the zip archive is missing
 if (!file.exists("activity.csv")){
-    if (!file.exists("activity.csv")){
+    if (!file.exists("activity.zip")){
             download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",
                           "activity.zip")
     }
