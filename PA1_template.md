@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -12,7 +7,8 @@ The compressed zip archive from the cloned repository (also available from
 unzipped then read into R using the read.csv() command. The date column was
 reformated to be a Date object.
 
-```{r echo=TRUE}
+
+```r
 ## check if file exists, if not either unzip the archive or download and unzip
 ## if the zip archive is missing
 if (!file.exists("activity.csv")){
@@ -26,17 +22,58 @@ if (!file.exists("activity.csv")){
 activity <- read.csv("activity.csv",stringsAsFactors = FALSE)
 ## the dplyr package is required for the code
 require(dplyr)
+```
+
+```
+## Loading required package: dplyr
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.2.3
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## Die folgenden Objekte sind maskiert von 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## Die folgenden Objekte sind maskiert von 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 activity <- tbl_df(activity)
 ## reformat the date column as a Date variable
 activity <- mutate(activity,date=as.Date(date))
 head(activity)
+```
 
+```
+## Source: local data frame [6 x 3]
+## 
+##   steps       date interval
+##   (int)     (date)    (int)
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 ## What is mean total number of steps taken per day?
 The activity data was grouped by day, summarized, and the steps plotted as a
 histogram.
-```{r echo=TRUE}
+
+```r
 ## group by days
 activity.byday <- group_by(activity,date)
 ## get the total number of steps per day
@@ -54,12 +91,13 @@ with(summary.byday,hist(steps.total,
 abline(v=daily.mean,lwd=3,col="black")
 abline(v=daily.median,lwd=3,col="blue")
 legend("topright",lwd = c(3,3),col = c("black","blue"),legend = c("daily mean","daily median"))
-
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)
+
 Many days have no data available and are responsible for the high frequency of
-days with almost no steps taken. The mean number of steps taken per day is `r daily.mean`
-(black line), and the median number of steps taken per day is `r daily.median`
+days with almost no steps taken. The mean number of steps taken per day is 9354.2295082
+(black line), and the median number of steps taken per day is 10395
 (blue line).
 
 
@@ -67,7 +105,8 @@ days with almost no steps taken. The mean number of steps taken per day is `r da
 The activity data was grouped by interval, summarized, and the mean number of
 steps plotted as a time series plot. A time variable was added to show the
 minute of the day for better readability.
-```{r echo=TRUE}
+
+```r
 ## grouping the activity data by the 5 minute intervals and summarizing the
 ## mean number of steps for them
 activity.byinterval <- group_by(activity,interval)
@@ -84,32 +123,38 @@ with(summary.byinterval,plot(time,
                              type = "l",
                              col = "blue",
                              main = "Daily activity pattern"))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
+
+```r
 ## find the interval with the highest average steps
 max.interval <- summary.byinterval[which.max(summary.byinterval$average.steps),]
 ```
-The interval `r max.interval$interval` contains the maximum number of steps on
-average (`r max.interval$average.steps`), which corresponds to the interval
-between minute `r max.interval$time` and minute `r max.interval$time + 5` of the
+The interval 835 contains the maximum number of steps on
+average (206.1698113), which corresponds to the interval
+between minute 515 and minute 520 of the
 day (08:35 am to 08:40 am).
 
 
 ## Imputing missing values
-```{r echo=TRUE}
+
+```r
 ## Compute the missing values
 missing.values <- is.na(activity$steps)
 missing.values.count <- sum(missing.values)
 ```
-The data set contains `r missing.values.count` missing values for the steps
+The data set contains 2304 missing values for the steps
 variable, and none for the date and interval variables. Therefore,
-`r missing.values.count` rows are missing values. The missing values are not
+2304 rows are missing values. The missing values are not
 isolated, but tend to stretch over longer,continuous periods of time when they
 occur. This makes common methods to impute these values (like using the
 surrounding interval) difficult to apply. Therefore, the missing values are
 simply imputed with the rounded average number of steps for that interval over
 all days, as computed for the daily activity pattern.
 
-```{r echo=TRUE}
+
+```r
 ## get an index for which missing values need to be imputed
 index <- which(missing.values)
 ## initiate the new data frame for the imputed data set
@@ -122,7 +167,22 @@ for (i in index){
 }
 ## the new data frame is complete
 head(activity.imputed)
+```
 
+```
+## Source: local data frame [6 x 3]
+## 
+##   steps       date interval
+##   (dbl)     (date)    (int)
+## 1     2 2012-10-01        0
+## 2     0 2012-10-01        5
+## 3     0 2012-10-01       10
+## 4     0 2012-10-01       15
+## 5     0 2012-10-01       20
+## 6     2 2012-10-01       25
+```
+
+```r
 ## group imputed data frame by days
 activity.imputed.byday <- group_by(activity.imputed,date)
 ## get the total number of steps per day for the imputed data
@@ -143,10 +203,12 @@ legend("topright",lwd = c(3,3),lty=c(1,2),col = c("black","blue"),legend = c("da
 rug(summary.imputed.byday$steps.total)
 ```
 
-The mean number of steps taken per day is now `r daily.mean.imputed` (black line),
-previously `r daily.mean` in the not imputed data set. The median number of
-steps taken per day is `r daily.median.imputed` (blue striped line), previously 
-`r daily.median` in the not imputed data set. The overall shape of the histogram is
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
+
+The mean number of steps taken per day is now 1.0765639\times 10^{4} (black line),
+previously 9354.2295082 in the not imputed data set. The median number of
+steps taken per day is 1.0762\times 10^{4} (blue striped line), previously 
+10395 in the not imputed data set. The overall shape of the histogram is
 very similar to the not imputed data set, but the peak at 0 to 1000 steps taken is
 now gone, and the peak at 10000 to 11000 steps taken is much more pronounced. Mean
 and median in the imputed data set are much closer together, and both have higher
@@ -163,10 +225,22 @@ separating the data from weekdays and weekends. both parts were grouped by
 interval, summarized in regards to the mean steps in an interval,and the mean
 number of steps plotted as a time series panel plot. A time variable was added
 to show the minute of the day for better readability.
-```{r echo=TRUE}
+
+```r
 ## create a weekday.weekend factor variable to differentiate between weekdays and
 ## weekend
 require(lubridate)
+```
+
+```
+## Loading required package: lubridate
+```
+
+```
+## Warning: package 'lubridate' was built under R version 3.2.3
+```
+
+```r
 activity.imputed <- mutate(activity.imputed,weekday.weekend = (ifelse(wday(activity.imputed$date)==1,7,wday(activity.imputed$date)-1)>5)+1)
 activity.imputed <- mutate(activity.imputed,weekday.weekend=as.factor(weekday.weekend))
 levels(activity.imputed$weekday.weekend) <- c("weekday","weekend")
@@ -216,8 +290,9 @@ legend("topright",col="red",lwd=1,legend="weekends activity pattern")
 title(ylab="Average number of steps per 5 minutes",outer=TRUE)
 title(xlab="Time of the day [min]",outer=TRUE)
 title(main="Activity patterns on weekdays and weekends in comparison", outer=TRUE)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)
 
 There are distinct differences between the activity patterns on weekdays and
 weekends. The activity in on weekdays starts earlier and has a higher peak in
